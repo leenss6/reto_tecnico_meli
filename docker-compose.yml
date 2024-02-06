@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:16.1
+    environment:
+      POSTGRES_DB: reto_meli
+      POSTGRES_USER: postleen17
+      POSTGRES_PASSWORD: ContraSeg234*
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: . # Asegúrate de tener un Dockerfile en el directorio actual
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql+psycopg2://postleen17:ContraSeg234*@db:5432/reto_meli"
+      ENCRYPT_KEY: "SdFvsDCGYQi8gNZBEusV3eHLlYGFCBfr5HLKDN3xIvw="
+      JWT_KEY: "Mo8dwP2j6z83r35"
+      JWT_KEY_EXPIRES: "timedelta(hours=1)"
+
+
+  nginx:
+    image: nginx:alpine 
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - web_data:/app
+    depends_on:
+      - web
+
+volumes:
+  db_data:
+  web_data:
